@@ -53,3 +53,13 @@
     border-radius: 4px;
     padding: 15px;
 }
+
+.tile {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    font-weight: bold;
+}
