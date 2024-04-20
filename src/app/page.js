@@ -44,6 +44,8 @@ export default function Home() {
 
     const moveUp = () => {
         const newBoard = [...board];
+        const originalBoard = JSON.stringify(newBoard); 
+        let newScore = score;
 
         for (let col = 0; col < 4; col++) {
             let newCol = newBoard
@@ -53,6 +55,7 @@ export default function Home() {
                 if (newCol[row] === newCol[row + 1]) {
                     // Merge identical tiles
                     newCol[row] *= 2;
+                    newScore += newCol[row];
                     newCol.splice(row + 1, 1);
                 }
             }
@@ -63,12 +66,20 @@ export default function Home() {
                 newBoard[row][col] = newCol[row]; // Update the board with the new column values
             }
         }
+
+        const newBoardString = JSON.stringify(newBoard);
+        if (originalBoard === newBoardString) {
+            return;
+        }
         const updatedBoard = addNewTile(newBoard);
         setBoard(updatedBoard);
+        setScore(newScore);
     };
     
     const moveDown = () => {
         const newBoard = [...board];
+        const originalBoard = JSON.stringify(newBoard);
+        let newScore = score; 
 
         for (let col = 0; col < 4; col++) {
             let newCol = newBoard
@@ -77,6 +88,7 @@ export default function Home() {
             for (let row = newCol.length - 1; row > 0; row--) {
                 if (newCol[row] === newCol[row - 1]) {
                     newCol[row] *= 2;
+                    newScore += newCol[row];
                     newCol.splice(row - 1, 1);
                     row--;
                 }
@@ -88,19 +100,26 @@ export default function Home() {
                 newBoard[row][col] = newCol[row];
             }
         }
-        
+        const newBoardString = JSON.stringify(newBoard);
+        if (originalBoard === newBoardString) {
+            return;
+        }
         const updatedBoard = addNewTile(newBoard);
         setBoard(updatedBoard);
+        setScore(newScore);
     }
 
     const moveLeft = () => {
         const newBoard = [...board];
+        const originalBoard = JSON.stringify(newBoard); 
+        let newScore = score;
     
         for (let row = 0; row < 4; row++) {
           let newRow = newBoard[row].filter((val) => val !== null);
           for (let col = 0; col < newRow.length - 1; col++) {
             if (newRow[col] === newRow[col + 1]) {
               newRow[col] *= 2;
+              newScore += newRow[col];
               newRow.splice(col + 1, 1);
               col++;
             }
@@ -110,19 +129,27 @@ export default function Home() {
           }
           newBoard[row] = newRow;
         }
+        const newBoardString = JSON.stringify(newBoard);
+        if (originalBoard === newBoardString) {
+            return;
+        }
     
         const updatedBoard = addNewTile(newBoard);
         setBoard(updatedBoard);
+        setScore(newScore);
     };
 
     const moveRight = () => {
         const newBoard = [...board];
+        const originalBoard = JSON.stringify(newBoard); 
+        let newScore = score;
     
         for (let row = 0; row < 4; row++) {
             let newRow = newBoard[row].filter((val) => val !== null); 
             for (let col = newRow.length - 1; col > 0; col--) {
                 if (newRow[col] === newRow[col - 1]) {
                     newRow[col] *= 2;
+                    newScore += newRow[col];
                     newRow.splice(col - 1, 1); // Remove merged tile
                     col--; // Adjust index after merge
                 }
@@ -133,11 +160,74 @@ export default function Home() {
             newBoard[row] = newRow;
         }
     
+        const newBoardString = JSON.stringify(newBoard);
+        if (originalBoard === newBoardString) {
+            return;
+        }
         const updatedBoard = addNewTile(newBoard);
         setBoard(updatedBoard);
+        setScore(newScore);
     };
 
     const [board, setBoard] = useState(createInitialBoard());
+    const [score, setScore] = useState(0); 
+    const [gameOver, setGameOver] = useState(false);; 
+
+    const handleKeyDown = (event) => {
+        if (event.key === "ArrowUp") {
+            moveUp();
+        } else if (event.key === "ArrowDown") {
+            moveDown();
+        } else if (event.key === "ArrowLeft") {
+            moveLeft();
+        } else if (event.key === "ArrowRight") {
+            moveRight();
+        }
+    };
+
+    const checkGameOver = () => {
+        for (let row = 0; row < board.length; row++) {
+            for (let col = 0; col < board[row].length; col++) {
+                if (board[row][col] === null) {
+                    // There is an empty tile, so the game is not over
+                    return false;
+                }
+                if (
+                    (col < board[row].length - 1 && board[row][col] === board[row][col + 1]) ||
+                    (row < board.length - 1 && board[row][col] === board[row + 1][col])
+                ) {
+                    // There are adjacent tiles with the same value, so the game is not over
+                    return false;
+                }
+            }
+        }
+        // No more empty tiles and no adjacent tiles with the same value, so the game is over
+        return true;
+    };
+
+    const retry = () => {
+        setBoard(createInitialBoard());
+        setScore(0);
+        setGameOver(false);
+    };
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+
+        if (checkGameOver()) {
+            setGameOver(true); // Set gameOver state to true
+        }
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [board]);
+
+    useEffect(() => {
+      if (gameOver) {
+        alert(`Game over! Your score: ${score}`); // Display alert with the final score
+      }
+    }, [gameOver, score]);
 
     return (
       <main className="game-container">
@@ -145,14 +235,15 @@ export default function Home() {
             <h1 className="title">2048</h1>
             <div className="score-container">
                 <div className="score-box">SCORE</div>
-                <div className="score-value">0</div>
+                <div className="score-value">{score}</div>
             </div>
         </header>
         <Board board={board}/>
-        <button onClick={moveUp}>Move Up</button>
-        <button onClick={moveDown}>Move Down</button>
-        <button onClick={moveLeft}>Move Left</button>
-        <button onClick={moveRight}>Move Right</button>
+        {gameOver && (
+            <button className="retry-button" onClick={retry}>
+            Retry
+            </button>
+        )}
       </main>
     );
 }

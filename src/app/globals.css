@@ -63,3 +63,12 @@
     font-size: 25px;
     font-weight: bold;
 }
+
+.retry-button {
+    background-color: #bbada0;
+    color: #eee4da;
+    font-size: 1.3rem;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px;
+}
