@@ -171,7 +171,7 @@ export default function Home() {
 
     const [board, setBoard] = useState(createInitialBoard());
     const [score, setScore] = useState(0); 
-    const [gameOver, setGameOver] = useState(false);; 
+    const [gameOver, setGameOver] = useState(false);
 
     const handleKeyDown = (event) => {
         if (event.key === "ArrowUp") {
@@ -224,9 +224,6 @@ export default function Home() {
     }, [board]);
 
     useEffect(() => {
-      if (gameOver) {
-        alert(`Game over! Your score: ${score}`); // Display alert with the final score
-      }
     }, [gameOver, score]);
 
     return (
