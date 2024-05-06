@@ -172,6 +172,12 @@ export default function Home() {
     const [board, setBoard] = useState(createInitialBoard());
     const [score, setScore] = useState(0); 
     const [gameOver, setGameOver] = useState(false);
+    const [topScores, setTopScores] = useState(() => {
+        const storedTopScores = localStorage.getItem('topScores');
+        return storedTopScores ? JSON.parse(storedTopScores) : [];
+    });
+    const [nameInput, setNameInput] = useState('');
+    const [showInput, setShowInput] = useState(false);
 
     const handleKeyDown = (event) => {
         if (event.key === "ArrowUp") {
@@ -211,20 +217,37 @@ export default function Home() {
         setGameOver(false);
     };
 
+    const handleNameChange = (event) => {
+        setNameInput(event.target.value);
+    };
+    
+    const submitScore = () => {
+        if (nameInput.trim() !== '') {
+          const newTopScores = [...topScores];
+          newTopScores.push({ name: nameInput, score });
+          newTopScores.sort((a, b) => b.score - a.score);
+          newTopScores.splice(10); // Keep only the top 10 scores
+          setTopScores(newTopScores);
+          localStorage.setItem('topScores', JSON.stringify(newTopScores));
+          setNameInput("");
+          setShowInput(false);
+        }
+    };
+
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
 
         if (checkGameOver()) {
             setGameOver(true); // Set gameOver state to true
+            if (score > (topScores.length > 10 ? topScores[topScores.length - 1].score : 0)) {
+                setShowInput(true);
+            }
         }
 
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [board]);
-
-    useEffect(() => {
-    }, [gameOver, score]);
 
     return (
       <main className="game-container">
@@ -235,7 +258,36 @@ export default function Home() {
                 <div className="score-value">{score}</div>
             </div>
         </header>
-        <Board board={board}/>
+        <div className="game-board-container">
+            <Board board={board}/>
+            <div className="scoreboard-container">
+                <h2 className="scoreboard-title">Leaderboard</h2>
+                <ul className="scoreboard">
+                    {topScores.map((score, index) => (
+                    <li key={index}>
+                        <div className="scoreboard-item">
+                            <span className="scoreboard-name">{score.name}</span>
+                            <span className="scoreboard-score">{score.score}</span>
+                        </div>
+                    </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+        {showInput && (
+            <div className="name-input-container">
+                <input
+                    type="text"
+                    className="name-input"
+                    placeholder="Enter your name"
+                    value={nameInput}
+                    onChange={handleNameChange}
+                />
+                <button className="submit-button" onClick={submitScore}>
+                    Submit
+                </button>
+            </div>
+        )}
         {gameOver && (
             <button className="retry-button" onClick={retry}>
             Retry

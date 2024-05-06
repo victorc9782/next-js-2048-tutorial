@@ -72,3 +72,56 @@
     padding: 10px;
     margin: 10px;
 }
+
+.name-input-container{
+    background-color: #eee4da;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.name-input{
+    background-color: #f3f0ec;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.submit-button{
+    background-color: #bbada0;
+    border-radius: 6px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.game-board-container{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.scoreboard-container{
+    background-color: #bbada0;
+    border-radius: 6px;
+    padding: 5px;
+    margin: 5px;
+    width: 200px;
+    text-align: center;
+}
+
+.scoreboard-title{
+    color: #eee4da;
+    font-size: 1.5rem;
+}
+
+.scoreboard-item{
+    text-align: left;
+    background-color: #eee4da;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.scoreboard-score{
+    float:right;
+}
