@@ -1,6 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import usePreviousProps from "@/app/Hook/use-previous-props";
 
 const Tile = (props) => {
+    const [extraClass, setExtraClass] = useState('');
+    const previousValue = usePreviousProps(props.value);
+    const hasChanged = props.value !== previousValue && props.value > previousValue;
+
+    useEffect(() => {
+        if (hasChanged) {
+          setExtraClass('tile-popup');
+          setTimeout(() => {
+            setExtraClass('');
+          }, 200);
+        }
+    }, [hasChanged]);
+
     const getValueColor = (value) => {
         switch (value) {
         case null:
@@ -34,10 +48,11 @@ const Tile = (props) => {
 
     const tileStyle = {
         backgroundColor: getValueColor(props.value),
+        transition: 'scale .2s'
     };
 
     return (
-        <div className='tile' style={tileStyle}>
+        <div className={`tile ${extraClass}`} style={tileStyle}>
         {props.value}
         </div>
     );

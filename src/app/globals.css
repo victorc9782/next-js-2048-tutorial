@@ -125,3 +125,7 @@
 .scoreboard-score{
     float:right;
 }
+
+.tile-popup {
+    scale: 1.1
+}
