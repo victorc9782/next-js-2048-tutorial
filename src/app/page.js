@@ -215,6 +215,7 @@ export default function Home() {
         setBoard(createInitialBoard());
         setScore(0);
         setGameOver(false);
+        setShowInput(false);
     };
 
     const handleNameChange = (event) => {
