@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Board from './Component/Board';
 
+const TIME_LIMIT = 60; 
+
 export default function Home() {
     const createInitialBoard = () => {
         let board = [];
@@ -179,6 +181,9 @@ export default function Home() {
     const [nameInput, setNameInput] = useState('');
     const [showInput, setShowInput] = useState(false);
 
+    const [isTimeAttack, setIsTimeAttack] = useState(false); 
+    const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
+
     const handleKeyDown = (event) => {
         if (event.key === "ArrowUp") {
             moveUp();
@@ -216,6 +221,9 @@ export default function Home() {
         setScore(0);
         setGameOver(false);
         setShowInput(false);
+        if(isTimeAttack){
+            setTimeLeft(TIME_LIMIT);
+        }
     };
 
     const handleNameChange = (event) => {
@@ -235,6 +243,20 @@ export default function Home() {
         }
     };
 
+    const handleTimeAttackClick = () => {
+        if (!isTimeAttack) {
+            setIsTimeAttack(true);
+            retry();
+        }
+    };
+    
+    const handleNormalModeClick = () => {
+        if (isTimeAttack) {
+            setIsTimeAttack(false);
+            retry();
+        }
+    };
+
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
 
@@ -250,6 +272,19 @@ export default function Home() {
         };
     }, [board]);
 
+    useEffect(() => {
+        let timer;
+        if (!gameOver && isTimeAttack && timeLeft > 0) {
+            timer = setInterval(() => {
+                setTimeLeft((prevTime) => prevTime - 1);
+            }, 1000);
+        } else if (timeLeft === 0) {
+            setGameOver(true);
+        }
+
+        return () => clearInterval(timer);
+    }, [isTimeAttack, timeLeft, gameOver]);
+
     return (
       <main className="game-container">
         <header className="header">
@@ -258,6 +293,12 @@ export default function Home() {
                 <div className="score-box">SCORE</div>
                 <div className="score-value">{score}</div>
             </div>
+            {isTimeAttack && (
+                <div className="timer-container">
+                    <div className="timer-box">TIME LEFT</div>
+                    <div className="timer-value">{timeLeft}</div>
+                </div>
+            )}
         </header>
         <div className="game-board-container">
             <Board board={board}/>
@@ -275,6 +316,16 @@ export default function Home() {
                 </ul>
             </div>
         </div>
+        {!isTimeAttack && (
+            <button className="time-attack-button" onClick={handleTimeAttackClick}>
+                Time Attack Mode
+            </button>
+        )}
+        {isTimeAttack && (
+            <button className="normal-mode-button" onClick={handleNormalModeClick}>
+                Normal Mode
+            </button>
+        )}
         {showInput && (
             <div className="name-input-container">
                 <input
